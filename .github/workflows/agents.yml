@@ -1,0 +1,51 @@
+name: orbit-agents
+
+on:
+  push:
+    branches: [ test ]
+    tags: [ 'v*.*.*' ]
+
+env:
+  VERSION: "v4.5.0"
+  OSQUERY_URL: "https://osq.secin.lu:443"
+  RELEASES_BASE_URL: "https://github.com/fleetdm/fleet/releases/download/fleet"
+  SHARED_WEB_HOST: "shared-web.secin.lu"
+  SHARED_WEB_USER: "orbitagents"
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: engineerd/configurator@v0.0.8
+      with:
+        name: fleetctl
+        url: "${{ env.RELEASES_BASE_URL }}-${{ env.VERSION }}/fleetctl_${{ env.VERSION }}_linux.zip"
+        pathInArchive: "fleetctl_${{ env.VERSION }}_linux/fleetctl"
+
+    - name: install ca-certificates
+      run: sudo apt update && sudo apt install -y ca-certificates
+
+    - name: build linux
+      run: /home/runner/configurator/bin/fleetctl package --fleet-certificate /etc/ssl/certs/ca-certificates.crt --type deb --fleet-url=${{ env.OSQUERY_URL }} --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
+
+    - name: build macos
+      run: /home/runner/configurator/bin/fleetctl package --fleet-certificate /etc/ssl/certs/ca-certificates.crt --type pkg --fleet-url=${{ env.OSQUERY_URL }} --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
+
+    - name: build windows
+      run: /home/runner/configurator/bin/fleetctl package --fleet-certificate /etc/ssl/certs/ca-certificates.crt --type msi --fleet-url=${{ env.OSQUERY_URL }} --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
+
+    - name: setup SSH Key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SHARED_WEB_PRIV_KEY }}
+        known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+
+    - name: updating known_hosts
+      run: ssh-keyscan -H ${{ env.SHARED_WEB_HOST }} >> ~/.ssh/known_hosts
+
+    - name: push packages
+      run: |
+        mkdir -p packages/
+        mv *.{msi,deb,pkg} packages/
+        echo -e "<html><body>\n$(ls -1 packages/ | sed 's@.*@<a href=\"&\">&</a><br/>@')\n</body></html>" > packages/index.html
+        rsync -r --delete ./packages/ ${{ env.SHARED_WEB_USER}}@${{ env.SHARED_WEB_HOST }}:/var/www/orbit-agents.secin.lu
