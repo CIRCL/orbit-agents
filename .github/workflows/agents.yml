@@ -33,19 +33,6 @@ jobs:
     - name: build windows
       run: /home/runner/configurator/bin/fleetctl package --fleet-certificate /etc/ssl/certs/ca-certificates.crt --type msi --fleet-url=${{ env.OSQUERY_URL }} --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
 
-  list:
-    runs-on: ubuntu-20.04
-    needs: build
-    if: github.ref == 'refs/heads/test'
-    steps:
-    - name: list packages
-      run: ls *.{msi,deb,pkg}
-
-  push:
-    runs-on: ubuntu-20.04
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    steps:
     - name: setup SSH Key
       uses: shimataro/ssh-key-action@v2
       with:
@@ -55,7 +42,12 @@ jobs:
     - name: updating known_hosts
       run: ssh-keyscan -H ${{ env.SHARED_WEB_HOST }} >> ~/.ssh/known_hosts
 
+    - name: list packages
+      if: github.ref == 'refs/heads/test'
+      run: ls -l *.{msi,deb,pkg}
+
     - name: push packages
+      if: github.ref == 'refs/heads/main'
       run: |
         mkdir -p packages/
         mv *.{msi,deb,pkg} packages/
