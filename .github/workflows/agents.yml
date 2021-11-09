@@ -2,8 +2,7 @@ name: orbit-agents
 
 on:
   push:
-    branches: [ test ]
-    tags: [ 'v*.*.*' ]
+    branches: [ main, test ]
 
 env:
   VERSION: "v4.5.0"
@@ -34,6 +33,11 @@ jobs:
     - name: build windows
       run: /home/runner/configurator/bin/fleetctl package --fleet-certificate /etc/ssl/certs/ca-certificates.crt --type msi --fleet-url=${{ env.OSQUERY_URL }} --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
 
+  push:
+    runs-on: ubuntu-20.04
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    steps:
     - name: setup SSH Key
       uses: shimataro/ssh-key-action@v2
       with:
