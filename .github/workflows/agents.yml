@@ -14,57 +14,62 @@ env:
 jobs:
   build:
     runs-on: ubuntu-24.04
+
     steps:
-    - uses: engineerd/configurator@v0.0.9
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Download fleetctl binary
+      uses: engineerd/configurator@v0.0.9
       with:
         name: fleetctl
         url: "${{ env.RELEASES_BASE_URL }}-${{ env.VERSION }}/fleetctl_${{ env.VERSION }}_linux.zip"
         pathInArchive: "fleetctl_${{ env.VERSION }}_linux/fleetctl"
 
-    - name: install ca-certificates
-      run: sudo apt update && sudo apt install -y ca-certificates
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y ca-certificates
 
-    - name: build linux
+    - name: Build Linux Package
       run: |
         /home/runner/configurator/bin/fleetctl package \
         --type deb \
         --fleet-url=${{ env.OSQUERY_URL }} \
-        --enroll-secret='${{ secrets.OSQUERY_SECRET }}' \
-        --config orbit.yml
+        --enroll-secret="${{ secrets.OSQUERY_SECRET }}" \
+        --fleet-certificate /etc/ssl/certs/ca-certificates.crt
 
-    - name: build macos
+    - name: Build macOS Package
       run: |
         /home/runner/configurator/bin/fleetctl package \
         --type pkg \
         --fleet-url=${{ env.OSQUERY_URL }} \
-        --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
-        --config orbit.yml
+        --enroll-secret="${{ secrets.OSQUERY_SECRET }}" \
+        --fleet-certificate /etc/ssl/certs/ca-certificates.crt
 
-    - name: build windows
+    - name: Build Windows Package
       run: |
         /home/runner/configurator/bin/fleetctl package \
         --type msi \
         --fleet-url=${{ env.OSQUERY_URL }} \
-        --enroll-secret='${{ secrets.OSQUERY_SECRET }}' \
-        --config orbit.yml
+        --enroll-secret="${{ secrets.OSQUERY_SECRET }}" \
+        --fleet-certificate /etc/ssl/certs/ca-certificates.crt
 
-    - name: setup SSH Key
+    - name: Setup SSH Key
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.SHARED_WEB_PRIV_KEY }}
         known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
 
-    - name: updating known_hosts
+    - name: Update known_hosts
       run: ssh-keyscan -H ${{ env.SHARED_WEB_HOST }} >> ~/.ssh/known_hosts
 
-    - name: list packages
+    - name: List Packages (Test Branch)
       if: github.ref == 'refs/heads/test'
       run: ls -l *.{msi,deb,pkg}
 
-    - name: push packages
+    - name: Deploy Packages (Main Branch)
       if: github.ref == 'refs/heads/main'
       run: |
         mkdir -p packages/
         mv *.{msi,deb,pkg} packages/
         echo -e "<html><body>\n$(ls -1 packages/ | sed 's@.*@<a href=\"&\">&</a><br/>@')\n</body></html>" > packages/index.html
-        rsync -r --delete ./packages/ ${{ env.SHARED_WEB_USER}}@${{ env.SHARED_WEB_HOST }}:/var/www/orbit-agents.secin.lu
+        rsync -r --delete ./packages/ ${{ env.SHARED_WEB_USER }}@${{ env.SHARED_WEB_HOST }}:/var/www/orbit-agents.secin.lu

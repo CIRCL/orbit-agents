@@ -1,4 +1,0 @@
-options:
-  enable_software_inventory: true
-  enable_vulnerabilities: true
-  fleet-certificate: /etc/ssl/certs/ca-certificates.crt
