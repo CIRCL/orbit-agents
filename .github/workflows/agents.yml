@@ -5,7 +5,7 @@ on:
     branches: [ main, test ]
 
 env:
-  VERSION: "v4.5.0"
+  VERSION: "v4.55.0"
   OSQUERY_URL: "https://osq.secin.lu:443"
   RELEASES_BASE_URL: "https://github.com/fleetdm/fleet/releases/download/fleet"
   SHARED_WEB_HOST: "shared-web.secin.lu"
