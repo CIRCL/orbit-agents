@@ -25,13 +25,25 @@ jobs:
       run: sudo apt update && sudo apt install -y ca-certificates
 
     - name: build linux
-      run: /home/runner/configurator/bin/fleetctl package --fleet-osquery-enable-software-inventory --fleet-osquery-enable-vulnerabilities --fleet-certificate /etc/ssl/certs/ca-certificates.crt --type deb --fleet-url=${{ env.OSQUERY_URL }} --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
+      run: /home/runner/configurator/bin/fleetctl package \
+        --type deb \
+        --fleet-url=${{ env.OSQUERY_URL }} \
+        --enroll-secret='${{ secrets.OSQUERY_SECRET }}' \
+        --config orbit.yml
 
     - name: build macos
-      run: /home/runner/configurator/bin/fleetctl package --fleet-osquery-enable-software-inventory --fleet-osquery-enable-vulnerabilities --fleet-certificate /etc/ssl/certs/ca-certificates.crt --type pkg --fleet-url=${{ env.OSQUERY_URL }} --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
+      run: /home/runner/configurator/bin/fleetctl package \
+        --type pkg \
+        --fleet-url=${{ env.OSQUERY_URL }} \
+        --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
+        --config orbit.yml
 
     - name: build windows
-      run: /home/runner/configurator/bin/fleetctl package --fleet-osquery-enable-software-inventory --fleet-osquery-enable-vulnerabilities --fleet-certificate /etc/ssl/certs/ca-certificates.crt --type msi --fleet-url=${{ env.OSQUERY_URL }} --enroll-secret='${{ secrets.OSQUERY_SECRET }}'
+      run: /home/runner/configurator/bin/fleetctl package \
+        --type msi \
+        --fleet-url=${{ env.OSQUERY_URL }} \
+        --enroll-secret='${{ secrets.OSQUERY_SECRET }}' \
+        --config orbit.yml
 
     - name: setup SSH Key
       uses: shimataro/ssh-key-action@v2
