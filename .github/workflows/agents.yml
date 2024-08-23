@@ -6,9 +6,9 @@ on:
 
 env:
   VERSION: "v4.55.0"
-  OSQUERY_URL: "https://osq.secin.lu:443"
+  OSQUERY_URL: "https://osq.lhc.lu:443"
   RELEASES_BASE_URL: "https://github.com/fleetdm/fleet/releases/download/fleet"
-  SHARED_WEB_HOST: "shared-web.secin.lu"
+  SHARED_WEB_HOST: "shared-web.lhc.lu"
   SHARED_WEB_USER: "orbitagents"
 
 jobs:
@@ -72,4 +72,4 @@ jobs:
         mkdir -p packages/
         mv *.{msi,deb,pkg} packages/
         echo -e "<html><body>\n$(ls -1 packages/ | sed 's@.*@<a href=\"&\">&</a><br/>@')\n</body></html>" > packages/index.html
-        rsync -r --delete ./packages/ ${{ env.SHARED_WEB_USER }}@${{ env.SHARED_WEB_HOST }}:/var/www/orbit-agents.secin.lu
+        rsync -r --delete ./packages/ ${{ env.SHARED_WEB_USER }}@${{ env.SHARED_WEB_HOST }}:/var/www/orbit-agents.lhc.lu
