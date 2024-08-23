@@ -1,5 +1,7 @@
 # orbit-agents for Osquery build pipeline
 
+[![orbit-agents](https://github.com/CIRCL/orbit-agents/actions/workflows/agents.yml/badge.svg)](https://github.com/CIRCL/orbit-agents/actions/workflows/agents.yml)
+
 Will use fleetdm orbit to build:
 
 - Linux Debian package .deb
