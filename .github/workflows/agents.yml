@@ -34,6 +34,7 @@ jobs:
         /home/runner/configurator/bin/fleetctl package \
         --type deb \
         --fleet-url=${{ env.OSQUERY_URL }} \
+        --fleet-desktop \
         --enable-scripts \
         --enroll-secret="${{ secrets.OSQUERY_SECRET }}" \
         --fleet-certificate /etc/ssl/certs/ca-certificates.crt
