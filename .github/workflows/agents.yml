@@ -6,6 +6,7 @@ on:
 
 env:
   VERSION: "v4.65.0"
+  ARCH: "amd64"
   OSQUERY_URL: "https://osq.lhc.lu:443"
   RELEASES_BASE_URL: "https://github.com/fleetdm/fleet/releases/download/fleet"
   SHARED_WEB_HOST: "shared-web.lhc.lu"
@@ -23,7 +24,7 @@ jobs:
       uses: engineerd/configurator@v0.0.10
       with:
         name: fleetctl
-        url: "${{ env.RELEASES_BASE_URL }}-${{ env.VERSION }}/fleetctl_${{ env.VERSION }}_linux.zip"
+        url: "${{ env.RELEASES_BASE_URL }}-${{ env.VERSION }}/fleetctl_${{ env.VERSION }}_linux_${{ env.ARCH }}.zip"
         pathInArchive: "fleetctl_${{ env.VERSION }}_linux/fleetctl"
 
     - name: Install dependencies
