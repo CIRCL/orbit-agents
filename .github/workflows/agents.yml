@@ -25,7 +25,7 @@ jobs:
       with:
         name: fleetctl
         url: "${{ env.RELEASES_BASE_URL }}-${{ env.VERSION }}/fleetctl_${{ env.VERSION }}_linux_${{ env.ARCH }}.zip"
-        pathInArchive: "fleetctl_${{ env.VERSION }}_linux/fleetctl"
+        pathInArchive: "fleetctl_${{ env.VERSION }}_linux_${{ env.ARCH }}/fleetctl"
 
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y ca-certificates
