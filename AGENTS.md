@@ -29,7 +29,7 @@ Read `README.md` and the workflow before editing. Preserve two-space YAML nestin
 
 ## Testing Guidelines
 
-No test framework or coverage threshold exists. Run `git diff --check`, review YAML/shell syntax, and verify all three packaging steps for workflow changes. Pushes to `test` build and list installers without deploying; secrets and SSH setup are still required. Report commands, results, and skipped checks. Distinguish configuration, successful builds, deployment, and verified enrollment; date live observations.
+No test framework or coverage threshold exists. Run `git diff --check`, review YAML/shell syntax, and verify all three packaging steps for workflow changes. Pushes to `test` build and list installers without deploying; the enrollment secret is still required, while SSH key setup runs only on `main`. Report commands, results, and skipped checks. Distinguish configuration, successful builds, deployment, and verified enrollment; date live observations.
 
 ## Commit & Pull Request Guidelines
 

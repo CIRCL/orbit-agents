@@ -65,6 +65,7 @@ jobs:
         --fleet-certificate /etc/ssl/certs/ca-certificates.crt
 
     - name: Setup SSH Key
+      if: github.ref == 'refs/heads/main'
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.SHARED_WEB_PRIV_KEY }}

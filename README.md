@@ -16,7 +16,8 @@ enabled. This CLI pin is separate from the Orbit, osquery and Desktop component
 versions selected through Fleet's update channels.
 
 Pushes to `test` build and list the installers. Pushes to `main` also deploy them
-to the package web host using `rsync --delete`.
+to the package web host using `rsync --delete`. Only `main` loads the deployment
+SSH key; test builds still require the enrollment secret.
 Runs are serialized per branch so deployments cannot overlap. An active run
 finishes before the next starts; only the newest pending run is retained.
 Deployment trusts the Ed25519 host key pinned in the workflow. Verify replacement
