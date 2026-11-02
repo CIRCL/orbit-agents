@@ -4,8 +4,12 @@ on:
   push:
     branches: [ main, test ]
 
+concurrency:
+  group: orbit-agents-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
-  VERSION: "v4.79.1"
+  VERSION: "v4.94.0"
   ARCH: "amd64"
   OSQUERY_URL: "https://osq.lhc.lu:443"
   RELEASES_BASE_URL: "https://github.com/fleetdm/fleet/releases/download/fleet"
@@ -64,19 +68,25 @@ jobs:
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.SHARED_WEB_PRIV_KEY }}
-        known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
-
-    - name: Update known_hosts
-      run: ssh-keyscan -H ${{ env.SHARED_WEB_HOST }} >> ~/.ssh/known_hosts
+        # Verified fingerprint: SHA256:xqDE+D8PRdzZzB7FvJXG/95VPY4PEWjbWz8iMl8lT5E
+        known_hosts: |
+          shared-web.lhc.lu ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEHc7ld4IszsXbm7D9X2OC1LB02CAilBxSl6wuR7aWW4
 
     - name: List Packages (Test Branch)
       if: github.ref == 'refs/heads/test'
-      run: ls -l *.{msi,deb,pkg}
+      run: ls -l -- ./*.{msi,deb,pkg}
 
     - name: Deploy Packages (Main Branch)
       if: github.ref == 'refs/heads/main'
       run: |
         mkdir -p packages/
-        mv *.{msi,deb,pkg} packages/
-        echo -e "<html><body>\n$(ls -1 packages/ | sed 's@.*@<a href=\"&\">&</a><br/>@')\n</body></html>" > packages/index.html
+        mv -- ./*.{msi,deb,pkg} packages/
+        {
+          printf '<html><body>\n'
+          for package in packages/*.{msi,deb,pkg}; do
+            filename="${package##*/}"
+            printf '<a href="%s">%s</a><br/>\n' "$filename" "$filename"
+          done
+          printf '</body></html>\n'
+        } > packages/index.html
         rsync -r --delete ./packages/ ${{ env.SHARED_WEB_USER }}@${{ env.SHARED_WEB_HOST }}:/var/www/orbit-agents.lhc.lu
