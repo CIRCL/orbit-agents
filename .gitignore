@@ -142,3 +142,7 @@ dist
 .svelte-kit
 
 # End of https://www.toptal.com/developers/gitignore/api/node
+
+# Generated downloads can contain enrollment credentials.
+/packages/
+__pycache__/
