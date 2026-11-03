@@ -64,6 +64,12 @@ jobs:
         --enroll-secret="${{ secrets.OSQUERY_SECRET }}" \
         --fleet-certificate /etc/ssl/certs/ca-certificates.crt
 
+    - name: Prepare downloads and website
+      run: |
+        mkdir -p packages/
+        mv -- ./*.{msi,deb,pkg} packages/
+        python3 scripts/build-download-site.py packages/
+
     - name: Setup SSH Key
       if: github.ref == 'refs/heads/main'
       uses: shimataro/ssh-key-action@v2
@@ -75,19 +81,9 @@ jobs:
 
     - name: List Packages (Test Branch)
       if: github.ref == 'refs/heads/test'
-      run: ls -l -- ./*.{msi,deb,pkg}
+      run: ls -l -- packages/
 
     - name: Deploy Packages (Main Branch)
       if: github.ref == 'refs/heads/main'
       run: |
-        mkdir -p packages/
-        mv -- ./*.{msi,deb,pkg} packages/
-        {
-          printf '<html><body>\n'
-          for package in packages/*.{msi,deb,pkg}; do
-            filename="${package##*/}"
-            printf '<a href="%s">%s</a><br/>\n' "$filename" "$filename"
-          done
-          printf '</body></html>\n'
-        } > packages/index.html
         rsync -r --delete ./packages/ ${{ env.SHARED_WEB_USER }}@${{ env.SHARED_WEB_HOST }}:/var/www/orbit-agents.lhc.lu
