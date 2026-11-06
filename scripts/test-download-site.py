@@ -19,6 +19,9 @@ class DownloadSiteTests(unittest.TestCase):
             self.assertIn('href="https://mon01.srv.office.lhc.lu/pano/" target="_blank" rel="noopener noreferrer"',page)
             self.assertEqual(len((root/'SHA256SUMS').read_text().splitlines()),3)
             self.assertNotIn('${pano_tokens}',page)
+            self.assertNotIn('${pano_theme}',page)
+            self.assertIn('prefers-color-scheme:dark',page)
+            self.assertIn((Path(__file__).resolve().parents[1]/'assets/pano-ui/0.2.0/theme.js').read_text(),page)
 
     def test_missing_installer_still_fails_before_publishing_a_page(self):
         with tempfile.TemporaryDirectory() as directory:

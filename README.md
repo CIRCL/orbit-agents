@@ -54,10 +54,17 @@ Local installer builds require Docker with privileged mount support, `cpio` and
 `fleetctl` on `PATH`. Website generation uses Python 3.11 or newer and its
 standard library; CI's Ubuntu 24.04 runner supplies Python.
 
-The page now embeds its palette from the pinned `assets/pano-ui/0.1.0/` bundle
+The page now embeds its palette from the pinned `assets/pano-ui/0.2.0/` bundle
 instead of maintaining another editable token copy. The builder verifies both
 shared CSS checksums before creating output. The existing download layout,
 installer discovery and packaging workflow remain unchanged. Back to Pano and
 related-service links open safely in new tabs; download controls retain their
 native behavior. Run `python3 scripts/test-download-site.py` for an offline
 synthetic-package check. No real installers or enrollment secrets are needed.
+
+The 0.2.0 theme candidate adds a Theme selector (System, Light, Dark). System
+follows the operating system by default, including without JavaScript; explicit
+choices persist for this origin when browser storage is available. The same
+verified controller is embedded with the palette, keeping output self-contained.
+Print remains light and omits the selector. Existing 0.1.0 assets are retained.
+Source/test completion does not establish deployment acceptance.
