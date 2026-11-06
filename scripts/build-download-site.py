@@ -5,6 +5,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import html
+import json
 from pathlib import Path
 import shlex
 from string import Template
@@ -13,6 +14,14 @@ from urllib.parse import quote
 
 def build(directory):
     values = {"build_date": datetime.now(timezone.utc).strftime("%d %B %Y").lstrip("0")}
+    shared = Path(__file__).resolve().parents[1] / 'assets/pano-ui/0.1.0'
+    manifest = json.loads((shared/'manifest.json').read_text())
+    if manifest['version'] != '0.1.0' or set(manifest['files']) != {'tokens.css','pano.css'}:
+        raise ValueError('Unexpected Pano UI release')
+    for name, digest in manifest['files'].items():
+        if hashlib.sha256((shared/name).read_bytes()).hexdigest() != digest:
+            raise ValueError('Pano UI checksum mismatch')
+    values['pano_tokens'] = (shared/'tokens.css').read_text()
     checksums = []
     for platform, extension in (("macos", "pkg"), ("windows", "msi"), ("linux", "deb")):
         files = sorted(directory.glob("*." + extension))
